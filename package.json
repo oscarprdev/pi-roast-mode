@@ -1,0 +1,54 @@
+{
+	"name": "@narumitw/pi-roast-mode",
+	"version": "0.1.0",
+	"description": "Pi extension that adds a read-only /roast collaboration mode.",
+	"type": "module",
+	"license": "MIT",
+	"private": false,
+	"keywords": [
+		"pi-package",
+		"pi-extension",
+		"pi",
+		"roast-mode",
+		"roasting",
+		"code-review"
+	],
+	"files": [
+		"src",
+		"README.md",
+		"LICENSE"
+	],
+	"pi": {
+		"extensions": [
+			"./src/index.ts"
+		]
+	},
+	"piExtension": {
+		"lifecycle": "stable"
+	},
+	"scripts": {
+		"check": "biome check . && npm run typecheck",
+		"format": "biome check --write .",
+		"typecheck": "tsc --noEmit",
+		"test": "npm run typecheck && tsc -p tsconfig.test.json && vitest run --config vitest.config.ts"
+	},
+	"peerDependencies": {
+		"@earendil-works/pi-coding-agent": "*",
+		"@earendil-works/pi-tui": "*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.8",
+		"@earendil-works/pi-coding-agent": "0.84.2",
+		"@earendil-works/pi-tui": "0.84.2",
+		"@types/node": "^26.2.0",
+		"typescript": "7.0.2",
+		"vitest": "^4.1.10"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/narumiruna/pi-roast-mode"
+	},
+	"dependencies": {
+		"@narumitw/pi-tui-kit": "^0.49.1"
+	}
+}
