@@ -1,5 +1,5 @@
 {
-	"name": "@oscarprdev/pi-roast-mode",
+	"name": "@oprdev/pi-roast-mode",
 	"version": "0.1.0",
 	"description": "Pi extension that adds a read-only /roast collaboration mode.",
 	"type": "module",
