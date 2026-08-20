@@ -1,6 +1,6 @@
 {
 	"name": "@oprdev/pi-roast-mode",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Pi extension that adds a read-only /roast collaboration mode.",
 	"type": "module",
 	"license": "MIT",
