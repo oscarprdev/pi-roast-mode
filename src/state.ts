@@ -30,6 +30,7 @@ export interface RoastModeState {
 	latestRoast?: string;
 	latestRoastSource?: RoastCompletionSource;
 	awaitingAction: boolean;
+	askedQuestions?: boolean;
 	savedRoast?: SavedRoast;
 	activeImplementation?: ActiveImplementationRoast;
 	selectedToolNames?: string[];
@@ -84,6 +85,7 @@ export function restoreRoastModeState(entries: unknown[], stateEntryType: string
 				(recoveredRoast ? ROAST_MODE_COMPLETE_TOOL_NAME : undefined))
 			: undefined,
 		awaitingAction: enabled && latestRoast !== undefined,
+		askedQuestions: entry.data.askedQuestions === true,
 		savedRoast,
 		activeImplementation,
 		selectedToolNames: stringArray(entry.data.selectedToolNames),

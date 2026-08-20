@@ -8,12 +8,15 @@ import {
 	configuredImplementationRoastRetention,
 	configuredRoastExportPath,
 	configuredRoastModeToggleShortcut,
+	configuredRoastStyle,
 	IMPLEMENTATION_ROAST_RETENTIONS,
 	normalizeKeyId,
 	ROAST_MODE_THINKING_LEVELS,
+	ROAST_STYLES,
 	type RoastModeSettings,
 	type RoastModeSettingsLoadResult,
 	type RoastModeSettingsPatch,
+	type RoastStyle,
 	readRoastModeSettings,
 	roastModeSettingsPath,
 	type UpdateRoastModeSettingsOptions,
@@ -45,6 +48,7 @@ export interface RoastModeSettingsMenuOptions {
 
 type Screen = "settings" | "tools" | "export" | "shortcut";
 type Action =
+	| "set-style"
 	| "set-thinking"
 	| "open-tools"
 	| "toggle-tool"
@@ -135,6 +139,14 @@ export async function showRoastModeSettings(
 									currentValue: configuredRoastModeToggleShortcut(state.settings) ?? "none",
 									action: "open-shortcut",
 								},
+								{
+									id: "roastStyle",
+									label: "Roast style",
+									description: "Pick the roast tone and depth: Soft, Mid, Hard, or Linus.",
+									currentValue: roastStyleLabel(configuredRoastStyle(state.settings)),
+									values: ROAST_STYLES.map(roastStyleLabel),
+									action: "set-style",
+								},
 							],
 						},
 			tools: ({ state }) => ({
@@ -188,6 +200,16 @@ export async function showRoastModeSettings(
 			}),
 		},
 		actions: {
+			"set-style": async ({ ctx: actionCtx, value, signal }) => {
+				const roastStyle = roastStyleFromLabel(value);
+				if (!roastStyle) return { kind: "rejected" };
+				return savePatch(
+					actionCtx,
+					{ roastStyle },
+					signal,
+					`Roast style: ${roastStyleLabel(roastStyle)}. Applies to the next Roast workflow.`,
+				);
+			},
 			"set-thinking": async ({ ctx: actionCtx, value, signal }) => {
 				if (
 					!ROAST_MODE_THINKING_LEVELS.includes(value as (typeof ROAST_MODE_THINKING_LEVELS)[number])
@@ -330,6 +352,23 @@ function invalidScreen(settingsPath: string, state: SettingsMenuState) {
 
 function retentionFromLabel(value: string | undefined) {
 	return IMPLEMENTATION_ROAST_RETENTIONS.find((retention) => retentionLabel(retention) === value);
+}
+
+const STYLE_LABELS: Record<RoastStyle, string> = {
+	soft: "🦆 Soft — gentle, constructive",
+	mid: "🧑‍💻 Mid — experienced, practical",
+	hard: "🔥 Hard — deep, uncompromising",
+	linus: "🗿 Linus — ruthless, no mercy",
+};
+
+function roastStyleLabel(style: RoastStyle) {
+	return STYLE_LABELS[style];
+}
+
+function roastStyleFromLabel(value: string | undefined): RoastStyle | undefined {
+	return (Object.entries(STYLE_LABELS) as [RoastStyle, string][]).find(
+		([_style, label]) => label === value,
+	)?.[0];
 }
 
 function defaultToolsValue(configured: string[] | undefined) {

@@ -57,6 +57,7 @@ import {
 	awaitRoastModeSettingsWrites,
 	configuredImplementationRoastRetention,
 	configuredRoastModeToggleShortcut,
+	configuredRoastStyle,
 	configuredThinkingLevel,
 	type RoastModeSettings,
 	readRoastModeSettings,
@@ -154,7 +155,7 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 	});
 
 	pi.registerFlag("roast", {
-		description: "Start in Codex-like Roast mode",
+		description: "Start in Roast mode",
 		type: "boolean",
 		default: false,
 	});
@@ -177,6 +178,8 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 					"Error: roast_mode_question is only available while Roast mode is active.",
 				);
 			}
+			state = { ...state, askedQuestions: true };
+			persistState();
 
 			const parsed = normalizeRoastModeQuestionParams(params);
 			if (!parsed.ok) {
@@ -216,6 +219,11 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 			if (!state.enabled) {
 				throw new Error("roast_mode_complete is only available while Roast mode is active");
 			}
+			if (requiresLinusQuestions()) {
+				throw new Error(
+					"Linus mode requires roast_mode_question before roast_mode_complete. Ask 1-3 questions about the highest-impact findings first.",
+				);
+			}
 			const parsed = normalizeRoastModeCompletion(params);
 			if (!parsed.ok) throw new Error(parsed.error);
 
@@ -225,7 +233,7 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 	});
 
 	pi.registerCommand("roast", {
-		description: "Enter or manage Codex-like Roast mode",
+		description: "Enter or manage Roast mode",
 		getArgumentCompletions: completeRoastArguments,
 		handler: async (args, ctx) => {
 			latestCommandContext = ctx;
@@ -434,10 +442,11 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 						latestRoast: state.savedRoast.roast,
 						latestRoastSource: state.savedRoast.source,
 						awaitingAction: true,
+						askedQuestions: false,
 						savedRoast: undefined,
 						activeImplementation: undefined,
 					}
-				: { ...state, enabled: true, activeImplementation: undefined };
+				: { ...state, enabled: true, activeImplementation: undefined, askedQuestions: false };
 		}
 		if (state.enabled) {
 			activateRoastModeTools();
@@ -540,13 +549,14 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 				latestRoast: undefined,
 				latestRoastSource: undefined,
 				awaitingAction: false,
+				askedQuestions: false,
 			};
 			persistState();
 			updateUi(ctx);
 		}
 		applyRoastModeTools();
 		return {
-			systemPrompt: `${event.systemPrompt}\n\n${buildRoastModePrompt()}`,
+			systemPrompt: `${event.systemPrompt}\n\n${buildRoastModePrompt(configuredRoastStyle(settings))}`,
 		};
 	});
 
@@ -559,6 +569,15 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 			if (parsedRoast.kind !== "absent") {
 				ctx.ui.notify(invalidRoastMessage(parsedRoast.kind), "warning");
 			}
+			persistState();
+			updateUi(ctx);
+			return;
+		}
+		if (requiresLinusQuestions()) {
+			ctx.ui.notify(
+				"Linus mode requires roast_mode_question before completing the roast. Ask 1-3 questions about the highest-impact findings first.",
+				"warning",
+			);
 			persistState();
 			updateUi(ctx);
 			return;
@@ -603,6 +622,7 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 			...state,
 			enabled: true,
 			awaitingAction: false,
+			askedQuestions: false,
 			savedRoast: undefined,
 			activeImplementation: undefined,
 		};
@@ -639,6 +659,7 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 			latestRoast: undefined,
 			latestRoastSource: undefined,
 			awaitingAction: false,
+			askedQuestions: false,
 			savedRoast: undefined,
 			activeImplementation: undefined,
 			manualThinkingLevel: undefined,
@@ -697,6 +718,10 @@ export default function roastMode(pi: ExtensionAPI, dependencies: RoastModeDepen
 		};
 		persistState();
 		updateUi(ctx);
+	}
+
+	function requiresLinusQuestions() {
+		return configuredRoastStyle(settings) === "linus" && state.askedQuestions !== true;
 	}
 
 	function completedRoastIsCurrent(intent: ReadyPresentationIntent) {

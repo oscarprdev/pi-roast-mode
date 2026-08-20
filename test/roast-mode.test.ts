@@ -786,6 +786,83 @@ test("legacy roast completion is presented once only after settlement", async ()
 	assert.match((mock.sentMessages[0]?.message as { content?: string })?.content ?? "", /# Legacy/);
 });
 
+test("linus mode requires roast_mode_question before roast_mode_complete", async () => {
+	const directory = await mkdtemp(join(tmpdir(), "pi-roast-mode-linus-gate-"));
+	const settingsPath = join(directory, "pi-roast-mode.json");
+	try {
+		await writeFile(settingsPath, '{"roastStyle":"linus"}');
+		const mock = createMockPi({ activeTools: ["read"] });
+		roastMode(mock.pi, { settingsPath });
+		const context = createMockContext({
+			hasUI: true,
+			select: async (_title: string, options: string[]) => options[0] ?? undefined,
+		});
+		await mock.events.get("session_start")?.[0]?.({}, context.ctx);
+		await mock.commands.get("roast")?.handler("start", context.ctx);
+
+		const complete = mock.tools.find((candidate) => candidate.name === "roast_mode_complete")
+			?.execute as ((...args: unknown[]) => Promise<unknown>) | undefined;
+		assert.ok(complete);
+		await assert.rejects(
+			complete("complete", { roast: "# No questions" }, undefined, undefined, context.ctx),
+			/Linus mode requires roast_mode_question/,
+		);
+		assert.equal(context.statuses.get("roast-mode"), "roast active");
+
+		const question = mock.tools.find((candidate) => candidate.name === "roast_mode_question")
+			?.execute as ((...args: unknown[]) => Promise<unknown>) | undefined;
+		assert.ok(question);
+		await question(
+			"ask",
+			{
+				questions: [
+					{
+						id: "fix",
+						header: "Fix",
+						question: "Should the fix drop the legacy API?",
+						options: [
+							{ label: "Yes", description: "Drop it." },
+							{ label: "No", description: "Keep it." },
+						],
+					},
+				],
+			},
+			undefined,
+			undefined,
+			context.ctx,
+		);
+		await complete("complete", { roast: "# With questions" }, undefined, undefined, context.ctx);
+		assert.equal(context.statuses.get("roast-mode"), "roast ready");
+	} finally {
+		await rm(directory, { recursive: true, force: true });
+	}
+});
+
+test("linus mode blocks the legacy proposed-roast path without questions", async () => {
+	const directory = await mkdtemp(join(tmpdir(), "pi-roast-mode-linus-legacy-"));
+	const settingsPath = join(directory, "pi-roast-mode.json");
+	try {
+		await writeFile(settingsPath, '{"roastStyle":"linus"}');
+		const mock = createMockPi({ activeTools: ["read"] });
+		roastMode(mock.pi, { settingsPath });
+		const context = createMockContext();
+		await mock.events.get("session_start")?.[0]?.({}, context.ctx);
+		await mock.commands.get("roast")?.handler("start", context.ctx);
+
+		await mock.events.get("agent_end")?.[0]?.(
+			{
+				messages: [{ role: "assistant", content: "<proposed_roast>\n# Legacy\n</proposed_roast>" }],
+			},
+			context.ctx,
+		);
+		assert.equal(context.statuses.get("roast-mode"), "roast active");
+		assert.match(context.notifications.at(-1)?.message ?? "", /requires roast_mode_question/);
+		assert.equal(mock.sentMessages.length, 0);
+	} finally {
+		await rm(directory, { recursive: true, force: true });
+	}
+});
+
 test("settled roast presentation waits for idle without pending messages", async () => {
 	let idle = false;
 	let pending = false;
@@ -1048,6 +1125,7 @@ test("inactive context discards completed-roast tool results", async () => {
 
 test("Roast prompt requires the standalone completion contract", () => {
 	const prompt = buildRoastModePrompt();
+	assert.match(prompt, /Roast persona: Mid/);
 	assert.match(prompt, /recommended option.*assumption/i);
 	assert.match(prompt, /roast_mode_complete/i);
 	assert.match(prompt, /alone as (?:your )?(?:final|last) action/i);
@@ -1055,6 +1133,14 @@ test("Roast prompt requires the standalone completion contract", () => {
 	assert.match(prompt, /clarification.*roast_mode_complete.*unchanged/is);
 	assert.match(prompt, /behavior-level/i);
 	assert.doesNotMatch(prompt, /<proposed_roast>/i);
+});
+
+test("Roast prompt selects the persona block by style", () => {
+	assert.match(buildRoastModePrompt("soft"), /Roast persona: Soft/);
+	assert.doesNotMatch(buildRoastModePrompt("soft"), /Roast persona: Linus/);
+	assert.match(buildRoastModePrompt("hard"), /Roast persona: Hard/);
+	assert.match(buildRoastModePrompt("linus"), /choice of programming language/);
+	assert.equal(buildRoastModePrompt("linus"), buildRoastModePrompt("linus"));
 });
 
 test("proposed-roast helpers extract and remove roast blocks", () => {

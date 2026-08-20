@@ -17,10 +17,53 @@ import {
 	configuredImplementationRoastRetention,
 	configuredRoastExportPath,
 	configuredRoastModeToggleShortcut,
+	configuredRoastStyle,
 	normalizeRoastModeSettings,
 	readRoastModeSettings,
 	updateRoastModeSettings,
 } from "../src/settings.js";
+
+test("Roast-mode settings validate and configure roast styles", async () => {
+	assert.deepEqual(normalizeRoastModeSettings({}), { thinkingLevel: "inherit" });
+	assert.deepEqual(normalizeRoastModeSettings({ roastStyle: "linus" }), {
+		thinkingLevel: "inherit",
+		roastStyle: "linus",
+	});
+	assert.deepEqual(normalizeRoastModeSettings({ roastStyle: "soft" }), {
+		thinkingLevel: "inherit",
+		roastStyle: "soft",
+	});
+	assert.equal(normalizeRoastModeSettings({ roastStyle: "sith-lord" }), undefined);
+	assert.equal(
+		configuredRoastStyle(normalizeRoastModeSettings({}) ?? { thinkingLevel: "inherit" }),
+		"mid",
+	);
+	assert.equal(
+		configuredRoastStyle(
+			normalizeRoastModeSettings({ roastStyle: "hard" }) ?? {
+				thinkingLevel: "inherit",
+			},
+		),
+		"hard",
+	);
+
+	const directory = await mkdtemp(join(tmpdir(), "pi-roast-mode-test-"));
+	try {
+		const path = join(directory, "pi-roast-mode.json");
+		await writeFile(path, '{"roastStyle":"linus"}');
+		assert.deepEqual(await readRoastModeSettings(path), {
+			kind: "loaded",
+			settings: { thinkingLevel: "inherit", roastStyle: "linus" },
+		});
+		await updateRoastModeSettings({ roastStyle: "hard" }, { settingsPath: path });
+		assert.deepEqual(await readRoastModeSettings(path), {
+			kind: "loaded",
+			settings: { thinkingLevel: "inherit", roastStyle: "hard" },
+		});
+	} finally {
+		await rm(directory, { recursive: true, force: true });
+	}
+});
 
 test("Roast-mode settings validate inherit and fixed thinking levels", async () => {
 	assert.deepEqual(normalizeRoastModeSettings({}), { thinkingLevel: "inherit" });

@@ -15,6 +15,7 @@ import {
 export const ROAST_MODE_SETTINGS_FILE = "pi-roast-mode.json";
 const LEGACY_ROAST_MODE_SETTINGS_FILE = "roast-mode.json";
 const MAX_SETTINGS_BYTES = 64 * 1024;
+export const ROAST_STYLES = ["soft", "mid", "hard", "linus"] as const;
 export const ROAST_MODE_THINKING_LEVELS = [
 	"inherit",
 	"off",
@@ -87,11 +88,13 @@ const BASE_KEYS = new Set([
 ]);
 const MAX_ROAST_EXPORT_PATH_LENGTH = 4096;
 
+export type RoastStyle = (typeof ROAST_STYLES)[number];
 export type RoastModeThinkingLevel = (typeof ROAST_MODE_THINKING_LEVELS)[number];
 export type ImplementationRoastRetention = (typeof IMPLEMENTATION_ROAST_RETENTIONS)[number];
 export type RoastModeFixedThinkingLevel = Exclude<RoastModeThinkingLevel, "inherit">;
 export interface RoastModeSettings {
 	thinkingLevel: RoastModeThinkingLevel;
+	roastStyle?: RoastStyle;
 	defaultRoastTools?: string[];
 	implementationRoastRetention?: ImplementationRoastRetention;
 	defaultRoastExportPath?: string;
@@ -100,6 +103,7 @@ export interface RoastModeSettings {
 }
 export interface RoastModeSettingsPatch {
 	thinkingLevel?: RoastModeThinkingLevel;
+	roastStyle?: RoastStyle;
 	defaultRoastTools?: readonly string[] | null;
 	implementationRoastRetention?: ImplementationRoastRetention;
 	defaultRoastExportPath?: string | null;
@@ -143,6 +147,13 @@ export function normalizeRoastModeSettings(value: unknown): RoastModeSettings | 
 	const settings: RoastModeSettings = {
 		thinkingLevel: thinkingLevel as RoastModeThinkingLevel,
 	};
+	if (Object.hasOwn(value, "roastStyle")) {
+		const roastStyle = Reflect.get(value, "roastStyle");
+		if (!ROAST_STYLES.includes(roastStyle as RoastStyle)) {
+			return undefined;
+		}
+		settings.roastStyle = roastStyle as RoastStyle;
+	}
 	if (Object.hasOwn(value, "defaultRoastTools")) {
 		const defaultRoastTools = normalizeToolNames(Reflect.get(value, "defaultRoastTools"));
 		if (!defaultRoastTools) return undefined;
@@ -300,6 +311,7 @@ export function updateRoastModeSettings(
 		const current = await readSettingsDocumentForUpdate(settingsPath, legacySettingsPath);
 		const updated: SettingsDocument = { ...current };
 		if (patch.thinkingLevel !== undefined) updated.thinkingLevel = patch.thinkingLevel;
+		if (patch.roastStyle !== undefined) updated.roastStyle = patch.roastStyle;
 		if (patch.defaultRoastTools === null) delete updated.defaultRoastTools;
 		else if (patch.defaultRoastTools !== undefined) {
 			updated.defaultRoastTools = [...patch.defaultRoastTools];
@@ -475,6 +487,10 @@ function isNodeError(error: unknown): error is NodeJS.ErrnoException {
 function safeReadError(error: unknown) {
 	if (isNodeError(error) && error.code === "ELOOP") return "settings path is not a regular file";
 	return error instanceof Error ? error.message : String(error);
+}
+
+export function configuredRoastStyle(settings: RoastModeSettings): RoastStyle {
+	return settings.roastStyle ?? "mid";
 }
 
 export function configuredThinkingLevel(
