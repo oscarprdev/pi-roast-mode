@@ -1,8 +1,8 @@
 # 🔥 pi-roast-mode — Read-only Roast for Pi
 
-[![npm](https://img.shields.io/npm/v/@oscarprdev/pi-roast-mode)](https://www.npmjs.com/package/@oscarprdev/pi-roast-mode) [![Pi extension](https://img.shields.io/badge/Pi-extension-blue)](https://pi.dev) [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/@oprdev/pi-roast-mode)](https://www.npmjs.com/package/@oprdev/pi-roast-mode) [![Pi extension](https://img.shields.io/badge/Pi-extension-blue)](https://pi.dev) [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
-`@oscarprdev/pi-roast-mode` adds a read-only `/roast` collaboration mode to Pi. Roast mode questions, criticizes, and ranks the real flaws in a codebase — from the repository, with evidence — and produces an actionable hit list before any code mutation happens.
+`@oprdev/pi-roast-mode` adds a read-only `/roast` collaboration mode to Pi. Roast mode questions, criticizes, and ranks the real flaws in a codebase — from the repository, with evidence — and produces an actionable hit list before any code mutation happens.
 
 ## ✨ Features
 
@@ -21,13 +21,13 @@
 ## 📦 Install
 
 ```bash
-pi install npm:@oscarprdev/pi-roast-mode
+pi install npm:@oprdev/pi-roast-mode
 ```
 
 Try without installing permanently:
 
 ```bash
-pi -e npm:@oscarprdev/pi-roast-mode
+pi -e npm:@oprdev/pi-roast-mode
 ```
 
 Try this package locally from the repository root:

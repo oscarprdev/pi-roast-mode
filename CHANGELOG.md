@@ -1,4 +1,4 @@
-# @oscarprdev/pi-roast-mode
+# @oprdev/pi-roast-mode
 
 ## 0.1.0
 
