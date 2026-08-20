@@ -98,6 +98,10 @@ packages/pi-roast-mode/
 
 Pi extension, Pi coding agent, roast, code review, evidence-based critique, actionable findings.
 
+## 🙏 Acknowledgments
+
+This project builds on [pi-extensions](https://github.com/narumiruna/pi-extensions), the collection of Pi extensions that served as the base and inspiration for this work. Thank you for the solid foundation.
+
 ## 📄 License
 
 MIT. See [`LICENSE`](./LICENSE).
