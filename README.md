@@ -61,14 +61,14 @@ When Roast mode is active, the agent reads the files, runs read-only checks, and
 
 Open **Settings** from an inactive `/roast` menu to edit the flat group of workflow choices: **Roast style**, **Roast thinking**, **Roast tools**, **After Implement**, **Export destination**, and **Roast mode shortcut**. The manual settings file is `$PI_CODING_AGENT_DIR/pi-roast-mode.json`.
 
-**Roast style** sets the tone and depth of the roast. All styles propose fixes; only the strictness and wording differ:
+**Roast style** sets the tone and depth of the roast. All styles propose fixes; only the strictness and wording differ. Every reply also opens with an acknowledgment phrase (e.g. "Good catch!" or "Absolutely.") regardless of style:
 
 | Style | Tone |
 |---|---|
 | 🦆 `soft` | Gentle, constructive, educational — every finding is a teaching moment |
 | 🧑‍💻 `mid` | Experienced, practical, direct — the balanced default |
 | 🔥 `hard` | Deep, uncompromising — hunts edge cases, correctness, and broken invariants |
-| 🗿 `linus` | Ruthless, no mercy — brutal but evidence-backed. Questions are mandatory before completing: you always get a say on the highest-impact findings |
+| 🗿 `linus` | Ruthless, no mercy — brutal but evidence-backed, and the question phrasing bites too. Questions are mandatory before completing: you always get a say on the highest-impact findings |
 
 ```json
 {

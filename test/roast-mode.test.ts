@@ -1143,6 +1143,23 @@ test("Roast prompt selects the persona block by style", () => {
 	assert.equal(buildRoastModePrompt("linus"), buildRoastModePrompt("linus"));
 });
 
+test("every style carries the answer-suggestion openers; linus adds hard wording", () => {
+	for (const style of ["soft", "mid", "hard", "linus"] as const) {
+		const prompt = buildRoastModePrompt(style);
+		assert.match(prompt, /Conversation openers \(all styles\)/);
+		assert.match(prompt, /You're absolutely right/);
+		assert.match(prompt, /Great question!/);
+		assert.match(prompt, /That's a really good observation/);
+		assert.match(prompt, /I get what you're saying/);
+		assert.match(prompt, /Absolutely\./);
+	}
+	assert.match(
+		buildRoastModePrompt("linus"),
+		/wordings and questions carry the same hard register/i,
+	);
+	assert.doesNotMatch(buildRoastModePrompt("soft"), /hard register/i);
+});
+
 test("proposed-roast helpers extract and remove roast blocks", () => {
 	assert.equal(
 		extractProposedRoast("Intro\n<proposed_roast>\n# Roast\n</proposed_roast>"),
