@@ -36,7 +36,7 @@ test("Roast-mode settings validate and configure roast styles", async () => {
 	assert.equal(normalizeRoastModeSettings({ roastStyle: "sith-lord" }), undefined);
 	assert.equal(
 		configuredRoastStyle(normalizeRoastModeSettings({}) ?? { thinkingLevel: "inherit" }),
-		"mid",
+		"hard",
 	);
 	assert.equal(
 		configuredRoastStyle(

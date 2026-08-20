@@ -490,7 +490,7 @@ function safeReadError(error: unknown) {
 }
 
 export function configuredRoastStyle(settings: RoastModeSettings): RoastStyle {
-	return settings.roastStyle ?? "mid";
+	return settings.roastStyle ?? "hard";
 }
 
 export function configuredThinkingLevel(

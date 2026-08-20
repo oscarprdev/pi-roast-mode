@@ -1125,7 +1125,7 @@ test("inactive context discards completed-roast tool results", async () => {
 
 test("Roast prompt requires the standalone completion contract", () => {
 	const prompt = buildRoastModePrompt();
-	assert.match(prompt, /Roast persona: Mid/);
+	assert.match(prompt, /Roast persona: Hard/);
 	assert.match(prompt, /recommended option.*assumption/i);
 	assert.match(prompt, /roast_mode_complete/i);
 	assert.match(prompt, /alone as (?:your )?(?:final|last) action/i);

@@ -1,5 +1,12 @@
 # @oprdev/pi-roast-mode
 
+## 0.1.2
+
+### Patch Changes
+
+- Hard style is now the default roast style; the persona is sharpened to a knife-edged register (polite enough to be professional, technical enough to be trusted, rude enough to be remembered).
+- Linus style is spicier: brutal, profanity-adjacent dressing-downs that stay funny to read, edge tuned to ~85-90%.
+
 ## 0.1.1
 
 ### Patch Changes

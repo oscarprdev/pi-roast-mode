@@ -66,14 +66,14 @@ Open **Settings** from an inactive `/roast` menu to edit the flat group of workf
 | Style | Tone |
 |---|---|
 | 🦆 `soft` | Gentle, constructive, educational — every finding is a teaching moment |
-| 🧑‍💻 `mid` | Experienced, practical, direct — the balanced default |
-| 🔥 `hard` | Deep, uncompromising — hunts edge cases, correctness, and broken invariants |
+| 🧑‍💻 `mid` | Experienced, practical, direct — the milder option |
+| 🔥 `hard` | Deep, uncompromising — the new default. Knife-edged: professional enough to trust, sharp enough to remember |
 | 🗿 `linus` | Ruthless, no mercy — brutal but evidence-backed, and the question phrasing bites too. Questions are mandatory before completing: you always get a say on the highest-impact findings |
 
 ```json
 {
   "thinkingLevel": "inherit",
-  "roastStyle": "mid",
+  "roastStyle": "hard",
   "defaultRoastTools": ["read", "bash", "grep", "find", "ls"],
   "implementationRoastRetention": "keep",
   "defaultRoastExportPath": "ROAST.md"

@@ -63,7 +63,7 @@ test("Roast settings show six flat workflow rows without materializing a missing
 		assert.match(frame, /After Implement\s+Keep roast active/);
 		assert.match(frame, /Export destination\s+ROAST\.md/);
 		assert.match(frame, /Roast mode shortcut\s+none/);
-		assert.match(frame, /Roast style\s+.*Mid/);
+		assert.match(frame, /Roast style\s+.*Hard/);
 		assert.ok(tui.render(34).every((line) => visibleWidth(line) <= 34));
 		await assert.rejects(access(settingsPath));
 
@@ -101,12 +101,12 @@ test("Roast settings cycle the roast style through personas", async () => {
 		tui.press("tui.select.confirm");
 		await tui.waitForPending();
 		await tui.waitForOpen();
-		assert.equal(saved.at(-1)?.roastStyle, "hard");
+		assert.equal(saved.at(-1)?.roastStyle, "linus");
 		tui.press("tui.select.confirm");
 		await tui.waitForPending();
 		await tui.waitForOpen();
-		assert.equal(saved.at(-1)?.roastStyle, "linus");
-		assert.match(tui.render().join("\n"), /Roast style\s+.*Linus/);
+		assert.equal(saved.at(-1)?.roastStyle, "soft");
+		assert.match(tui.render().join("\n"), /Roast style\s+.*Soft/);
 		tui.press("ctrl+c");
 		await running;
 	});
@@ -361,7 +361,7 @@ test("RPC Settings changes retention and export destination with the same flat n
 					"After Implement (Keep roast active)",
 					"Export destination (ROAST.md)",
 					"Roast mode shortcut (none)",
-					"Roast style (🧑\u200d💻 Mid — experienced, practical)",
+					"Roast style (🔥 Hard — deep, uncompromising)",
 					"Back",
 				],
 				response: "After Implement (Keep roast active)",
@@ -374,7 +374,7 @@ test("RPC Settings changes retention and export destination with the same flat n
 					"After Implement (Use roast for handoff only)",
 					"Export destination (ROAST.md)",
 					"Roast mode shortcut (none)",
-					"Roast style (🧑\u200d💻 Mid — experienced, practical)",
+					"Roast style (🔥 Hard — deep, uncompromising)",
 					"Back",
 				],
 				response: "Export destination (ROAST.md)",
@@ -392,7 +392,7 @@ test("RPC Settings changes retention and export destination with the same flat n
 					"After Implement (Use roast for handoff only)",
 					"Export destination (rpc/ROAST.md)",
 					"Roast mode shortcut (none)",
-					"Roast style (🧑\u200d💻 Mid — experienced, practical)",
+					"Roast style (🔥 Hard — deep, uncompromising)",
 					"Back",
 				],
 				response: undefined,
@@ -419,7 +419,7 @@ test("Roast settings adapt to RPC cancellation and disposal aborts an in-flight 
 				"After Implement (Keep roast active)",
 				"Export destination (ROAST.md)",
 				"Roast mode shortcut (none)",
-				"Roast style (🧑‍💻 Mid — experienced, practical)",
+				"Roast style (🔥 Hard — deep, uncompromising)",
 				"Back",
 			],
 			response: undefined,
